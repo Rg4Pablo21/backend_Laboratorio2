@@ -1,7 +1,8 @@
+const db = require('../../config/database'); 
 const express = require('express');
 const router = express.Router();
-const db = require('../../config/database'); 
 // GET /api/tablas
+
 router.get('/tablas', async (req, res) => {
   try {
     const [resultadoTablas] = await db.query('SHOW TABLES');

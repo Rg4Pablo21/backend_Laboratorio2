@@ -1,16 +1,19 @@
-const db = require('../../config/database'); 
-const express = require('express');
+const db = require('../../config/database')
+const express = require('express')
 const router = express.Router();
-// GET /api/tablas
 
-router.get('/tablas', async (req, res) => {
-  try {
-    const [resultadoTablas] = await db.query('SHOW TABLES');
-    res.json(resultadoTablas);
-  } catch (error) {
-    console.error('Error en /api/tablas:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
+// Mi ruta get
+router.get('/tablas', async(req,res)=>{});
+router.post('/agregarTarea', async(req,res)=>{
+
+    try {
+        
+        let [resultadoTablas] = await db.query('SHOW TABLES');
+        res.json(resultadoTablas);
+
+    } catch (error) {
+        console.log("Error: ", error)
+    }
 });
 
 module.exports = router;

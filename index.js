@@ -1,21 +1,28 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
+
 const app = express();
 
-// Middlewares básicos (opcionales)
-app.use(express.json());
+app.use(cors({
+    origin:['http://127.0.0.1:5500'],
+    methods: ['GET', 'POST', 'OPSTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+
+const getTablas = require('./routes/get/obtenerTablas');
+app.use(getTablas);
+
+const getTareas = require('./routes/get/obtenerTareas')
+app.use(getTareas);
+
+//Cors
 
 
 
-// Rutas tipo GET 
-const tablasRouter = require('./routes/get/obtenerTablas');
-app.use('/api', tablasRouter);
-
-const tablasTareas = require('./routes/get/obtenerTareas');
-app.use('/api',tablasTareas)
-
-// Puerto
+//Configuracion del puerto
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor: http://localhost:${PORT}`);
-});
+app.listen(PORT,()=>{
+    console.log(`Servidor: http://localhost:${PORT}`);
+})

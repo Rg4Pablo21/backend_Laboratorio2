@@ -8,11 +8,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/**
- * CORS
- * - Corrige 'OPSTIONS' -> 'OPTIONS'
- * - Ajusta los orígenes según tu entorno
- */
+// CORS global
 const allowedOrigins = [
   'http://127.0.0.1:5500',
   process.env.FRONTEND_URL // ej.: https://tu-frontend.onrender.com
@@ -28,8 +24,7 @@ app.use(cors({
   credentials: true
 }));
 
-// Manejo explícito de preflight
-app.options('*', cors());
+// ⚠️ Quitar cualquier app.options('*' o '/*') — Express 5 no lo permite
 
 // Rutas
 const getTablas = require('./routes/get/obtenerTablas');
@@ -38,12 +33,12 @@ app.use(getTablas);
 const getTareas = require('./routes/get/obtenerTareas');
 app.use(getTareas);
 
-// Healthcheck para Render
+// Healthcheck
 app.get('/', (req, res) => {
   res.json({ ok: true, service: 'backend_laboratorio2' });
 });
 
-// Configuración del puerto
+// Puerto
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor: http://localhost:${PORT}`);

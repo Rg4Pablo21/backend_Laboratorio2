@@ -12,8 +12,8 @@ const pool = mysql2.createPool({
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
   dateStrings: true,
-    // Si Clever Cloud requiere SSL:
-    ssl: { rejectUnauthorized: false }
+  // Si Clever Cloud requiere SSL:
+  ssl: { rejectUnauthorized: false }
 });
 
 module.exports = pool.promise();

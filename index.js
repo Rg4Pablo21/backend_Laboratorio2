@@ -4,25 +4,47 @@ const cors = require('cors');
 
 const app = express();
 
+// Middlewares básicos
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+/**
+ * CORS
+ * - Corrige 'OPSTIONS' -> 'OPTIONS'
+ * - Ajusta los orígenes según tu entorno
+ */
+const allowedOrigins = [
+  'http://127.0.0.1:5500',
+  process.env.FRONTEND_URL // ej.: https://tu-frontend.onrender.com
+].filter(Boolean);
+
 app.use(cors({
-    origin:['http://127.0.0.1:5500'],
-    methods: ['GET', 'POST', 'OPSTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    return cb(new Error(`Origen no permitido por CORS: ${origin}`));
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
+// Manejo explícito de preflight
+app.options('*', cors());
 
+// Rutas
 const getTablas = require('./routes/get/obtenerTablas');
 app.use(getTablas);
 
-const getTareas = require('./routes/get/obtenerTareas')
+const getTareas = require('./routes/get/obtenerTareas');
 app.use(getTareas);
 
-//Cors
+// Healthcheck para Render
+app.get('/', (req, res) => {
+  res.json({ ok: true, service: 'backend_laboratorio2' });
+});
 
-
-
-//Configuracion del puerto
+// Configuración del puerto
 const PORT = process.env.PORT || 3000;
-app.listen(PORT,()=>{
-    console.log(`Servidor: http://localhost:${PORT}`);
-})
+app.listen(PORT, () => {
+  console.log(`Servidor: http://localhost:${PORT}`);
+});

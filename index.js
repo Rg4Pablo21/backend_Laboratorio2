@@ -8,23 +8,39 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS global
+/**
+ * CORS
+ * - Permite: localhost (vite/live server), FRONTEND_URL (si se define en .env),
+ *   y tu GitHub Pages: https://rg4pablo21.github.io
+ * - Acepta subrutas de GH Pages sin problema.
+ */
 const allowedOrigins = [
   'http://127.0.0.1:5500',
-  process.env.FRONTEND_URL // ej.: https://tu-frontend.onrender.com
+  'http://localhost:5173',     // si usas Vite
+  'http://localhost:3000',     // pruebas locales (fetch desde otra app)
+  'https://rg4pablo21.github.io',
+  process.env.FRONTEND_URL     // ej.: https://tu-frontend.onrender.com
 ].filter(Boolean);
 
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    // Requests sin Origin (curl/Postman) -> permitir
+    if (!origin) return cb(null, true);
+
+    // ¿Está el origin en la lista permitida?
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+
+    // Permitir también variantes *.github.io si algún día cambias usuario/org
+    const ghPagesPattern = /^https:\/\/[a-z0-9-]+\.github\.io$/i;
+    if (ghPagesPattern.test(origin)) return cb(null, true);
+
     return cb(new Error(`Origen no permitido por CORS: ${origin}`));
   },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  // No fijes allowedHeaders: deja que 'cors' refleje los que pida el navegador
   credentials: true
 }));
-
-// ⚠️ Quitar cualquier app.options('*' o '/*') — Express 5 no lo permite
+// No uses app.options('*', ...) en Express 5
 
 // Rutas
 const getTablas = require('./routes/get/obtenerTablas');
@@ -42,4 +58,5 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor: http://localhost:${PORT}`);
+  console.log('CORS permitiendo:', allowedOrigins);
 });

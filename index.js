@@ -10,37 +10,36 @@ app.use(express.urlencoded({ extended: true }));
 
 /**
  * CORS
- * - Permite: localhost (vite/live server), FRONTEND_URL (si se define en .env),
- *   y tu GitHub Pages: https://rg4pablo21.github.io
- * - Acepta subrutas de GH Pages sin problema.
+ * - Permite: localhost (live server / vite), y tu GitHub Pages.
+ * - Si defines FRONTEND_URL en .env (p. ej. https://tu-backend.onrender.com o
+ *   https://tu-frontend.onrender.com), también se permite.
  */
 const allowedOrigins = [
   'http://127.0.0.1:5500',
-  'http://localhost:5173',     // si usas Vite
-  'http://localhost:3000',     // pruebas locales (fetch desde otra app)
+  'http://localhost:5173',
+  'http://localhost:3000',
   'https://rg4pablo21.github.io',
-  process.env.FRONTEND_URL     // ej.: https://tu-frontend.onrender.com
+  process.env.FRONTEND_URL // opcional: setéalo en .env si lo usas
 ].filter(Boolean);
 
 app.use(cors({
   origin: (origin, cb) => {
-    // Requests sin Origin (curl/Postman) -> permitir
+    // peticiones sin Origin (curl/Postman) -> permitir
     if (!origin) return cb(null, true);
 
-    // ¿Está el origin en la lista permitida?
+    // lista explícita
     if (allowedOrigins.includes(origin)) return cb(null, true);
 
-    // Permitir también variantes *.github.io si algún día cambias usuario/org
+    // comodín para cualquier user/org de GitHub Pages (si lo necesitas)
     const ghPagesPattern = /^https:\/\/[a-z0-9-]+\.github\.io$/i;
     if (ghPagesPattern.test(origin)) return cb(null, true);
 
     return cb(new Error(`Origen no permitido por CORS: ${origin}`));
   },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  // No fijes allowedHeaders: deja que 'cors' refleje los que pida el navegador
   credentials: true
 }));
-// No uses app.options('*', ...) en Express 5
+// ⚠️ No uses app.options('*') en Express 5
 
 // Rutas
 const getTablas = require('./routes/get/obtenerTablas');
